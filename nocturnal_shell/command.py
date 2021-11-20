@@ -31,3 +31,4 @@ class ShellBoundCommand(Command):
     def __init__(self, shell) -> None:
         self._shell = shell
         super().__init__()
+ 

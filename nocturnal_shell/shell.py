@@ -9,8 +9,11 @@ class NoState(Exception):
     pass
 
 
-class Shell:
+class ActionException(Exception):
+    pass
 
+
+class Shell:
     NONE = cmds.NoInput()
     NOT_FOUND_CLASS = cmds.CommandNotFound
     DEFAULT_COMMANDS = [
@@ -49,6 +52,8 @@ class Shell:
         while not self.end_loop:
             try:
                 self.handle(self.session.prompt(self.prompt_text))
+            except ActionException as err:
+                self.LOGGER.error(err)
             except Exception as err:
                 self.LOGGER.debug(err)
                 continue

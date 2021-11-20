@@ -1,14 +1,24 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
 
 @dataclass
 class Node:
-    name: str
-    host: str
-    vendor: str
-    mac: str
+    name: field(type=str, required=True)
+    host: field(type=str, required=True)
+    vendor: field(type=str, required=True)
+    mac: field(type=str, required=True)
     role: str = "master"
-    SUPPORTED_VENDORS: list[str] = ('KVM', 'dell')
-    ALLOWED_ROLES: list[str] = ('master', 'worker')
+
+    
+
+
+    @property
+    def SUPPORTED_VENDORS(self):
+        return ("KVM", "dell")
+
+    @property
+    def ALLOWED_ROLES(self):
+        return ("master", "worker")
 
 
 class VMHost:
@@ -19,6 +29,7 @@ class Cluster:
     network: dict
     nodes: list
     services: list
+
 
 class CrucibleInventory:
     def __init__(self, inventory_file=None):
