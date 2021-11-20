@@ -3,14 +3,40 @@ from ..entities.services import service_registry
 from ..entities.entities import Node
 from argparse import ArgumentParser
 
-add_node_parser = ArgumentParser()
 
-add_node_parser = ArgumentParser()
-add_node_parser.add_argument("-i", "--host", type=str)
-add_node_parser.add_argument("-m", "--mac", type=str)
-add_node_parser.add_argument("-v", "--vendor", type=str, choices=Node.SUPPORTED_VENDORS)
-add_node_parser.add_argument("-n", "--name", type=str)
-add_node_parser.add_argument("-r", "--role", type=str, choices=Node.ALLOWED_ROLES)
+add_node_parser = ArgumentParser(prog="add_node", description="Add node to inventory")
+add_node_parser.add_argument(
+    "-i",
+    "--host",
+    type=str,
+    required=True,
+)
+add_node_parser.add_argument(
+    "-m",
+    "--mac",
+    type=str,
+    required=True,
+)
+add_node_parser.add_argument(
+    "-v",
+    "--vendor",
+    type=str,
+    choices=Node.get_supported_vendors(),
+    required=True,
+)
+add_node_parser.add_argument(
+    "-n",
+    "--name",
+    type=str,
+    required=True,
+)
+add_node_parser.add_argument(
+    "-r",
+    "--role",
+    type=str,
+    choices=Node.get_allowed_roles(),
+    required=True,
+)
 
 
 class AddNode(Command):

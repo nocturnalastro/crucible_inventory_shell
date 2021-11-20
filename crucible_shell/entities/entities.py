@@ -1,24 +1,43 @@
 from dataclasses import dataclass, field
+from nocturnal_shell.shell import ActionException
+
+
+class UnsupportedVendor(ActionException):
+    pass
+
+
+class UnsupportedRole(ActionException):
+    pass
 
 
 @dataclass
 class Node:
-    name: field(type=str, required=True)
-    host: field(type=str, required=True)
-    vendor: field(type=str, required=True)
-    mac: field(type=str, required=True)
+    name: str
+    host: str
+    vendor: str
+    mac: str
     role: str = "master"
 
-    
+    def __post_init__(self):
 
+        if self.vendor not in (supported_vendors := self.get_supported_vendors()):
+            raise UnsupportedVendor(
+                f"Vendor ({self.vendor}) is not in supported "
+                f"vendors ({supported_vendors})"
+            )
 
-    @property
-    def SUPPORTED_VENDORS(self):
-        return ("KVM", "dell")
+        if self.role not in (allowed_roles := self.get_allowed_roles()):
+            raise UnsupportedRole(
+                f"Role ({self.role}) is not in supported " f"roles ({allowed_roles})"
+            )
 
-    @property
-    def ALLOWED_ROLES(self):
-        return ("master", "worker")
+    @staticmethod
+    def get_supported_vendors():
+        return ["KVM", "dell"]
+
+    @staticmethod
+    def get_allowed_roles():
+        return ["master", "worker"]
 
 
 class VMHost:

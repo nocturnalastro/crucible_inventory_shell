@@ -1,5 +1,6 @@
 from abc import abstractmethod, ABC, abstractproperty
 from argparse import ArgumentParser
+from .exceptions import ActionException
 
 
 class Command(ABC):
@@ -18,7 +19,10 @@ class Command(ABC):
         pass
 
     def parse(self, arg_line):
-        return self.arg_parser.parse_args(arg_line)
+        try:
+            return self.arg_parser.parse_args(arg_line.split(" "))
+        except SystemExit:
+            raise ActionException from SystemExit
 
     @staticmethod
     def output(text):
@@ -31,4 +35,3 @@ class ShellBoundCommand(Command):
     def __init__(self, shell) -> None:
         self._shell = shell
         super().__init__()
- 

@@ -3,14 +3,7 @@ from prompt_toolkit import PromptSession
 from . import default_commands as cmds
 from .command import Command
 from .logging import rootLogger
-
-
-class NoState(Exception):
-    pass
-
-
-class ActionException(Exception):
-    pass
+from .exceptions import NoState, ActionException
 
 
 class Shell:
@@ -53,9 +46,10 @@ class Shell:
             try:
                 self.handle(self.session.prompt(self.prompt_text))
             except ActionException as err:
-                self.LOGGER.error(err)
-            except Exception as err:
                 self.LOGGER.debug(err)
+                continue
+            except Exception as err:
+                self.LOGGER.error(err)
                 continue
 
     def process_response(self, response) -> tuple[Command, str]:
