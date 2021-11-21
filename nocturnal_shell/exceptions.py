@@ -4,3 +4,7 @@ class NoState(Exception):
 
 class ActionException(Exception):
     pass
+
+
+class UserException(Exception):
+    pass

@@ -69,3 +69,4 @@ class AddService(Command):
         service_args = dict(**vars(args))
         service_args.pop("type")  # Remove type as to not interfere with Service
         state.inventory.add_service(ServiceClass(**service_args))
+

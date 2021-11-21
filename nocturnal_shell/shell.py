@@ -3,7 +3,7 @@ from prompt_toolkit import PromptSession
 from . import default_commands as cmds
 from .command import Command
 from .logging import rootLogger
-from .exceptions import NoState, ActionException
+from . import exceptions as ex
 
 
 class Shell:
@@ -25,7 +25,7 @@ class Shell:
         }
         self.session = PromptSession()
         if not hasattr(self, "state"):
-            raise NoState()
+            raise ex.NoState()
 
     def _init_cmd(self, cmd):
         return cmd(self) if cmd.requires_shell else cmd()
@@ -38,16 +38,18 @@ class Shell:
         self._exit = True
 
     @property
-    def end_loop(self):
-        return self._exit
+    def continue_loop(self):
+        return not self._exit
 
     def mainloop(self):
-        while not self.end_loop:
+        while self.continue_loop:
             try:
                 self.handle(self.session.prompt(self.prompt_text))
-            except ActionException as err:
+            except ex.ActionException as err:
                 self.LOGGER.debug(err)
                 continue
+            except ex.UserException as err:
+                self.handle(f"print {err.__class__.__name__}: {str(err)}")
             except Exception as err:
                 self.LOGGER.error(err)
                 continue

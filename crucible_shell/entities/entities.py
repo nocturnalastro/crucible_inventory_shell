@@ -1,19 +1,36 @@
 from dataclasses import dataclass, field
-from nocturnal_shell.shell import ActionException
+from nocturnal_shell import exceptions as ex
 
 
-class UnsupportedVendor(ActionException):
+class UnsupportedVendor(ex.ActionException):
     pass
 
 
-class UnsupportedRole(ActionException):
+class UnsupportedRole(ex.ActionException):
+    pass
+
+
+class Collision(ex.UserException):
     pass
 
 
 @dataclass
-class Node:
+class Host:
     name: str
     host: str
+
+    def _collides(self, comparison):
+        return [
+            self.name == comparison.name,
+            self.host == comparison.host,
+        ]
+
+    def collides(self, comparison):
+        return any(self._collides(comparison))
+
+
+@dataclass
+class Node(Host):
     vendor: str
     mac: str
     role: str = "master"
@@ -39,8 +56,19 @@ class Node:
     def get_allowed_roles():
         return ["master", "worker"]
 
+    def _collides(self, comparison):
+        return super()._collides(comparison) + [
+            self.mac == comparison.mac,
+        ]
 
-class VMHost:
+
+@dataclass
+class VMHost(Host):
+    pass
+
+
+@dataclass
+class Service(Host):
     pass
 
 
@@ -55,18 +83,27 @@ class CrucibleInventory:
         if inventory_file:
             raise NotImplementedError("Not implemented loading and inventory yet")
 
-        self._nodes = []
-        self._vm_hosts = []
-        self._services = []
+        self.nodes = []
+        self.vm_hosts = []
+        self.services = []
+
+    def check_for_collisions(self, insert, current):
+        # Check for collisions between the
+        for comparison in current:
+            if insert.collides(comparison):
+                raise Collision(
+                    f"{insert.__class__.__name__} collies with already existing hosts"
+                )
 
     def add_node(self, node):
-        self._nodes.append(node)
+        self.check_for_collisions(node, self.nodes)
+        self.nodes.append(node)
 
     def add_service(self, service):
-        self._services.append(service)
+        self.services.append(service)
 
     def add_vmhost(self, vmhost):
-        self._vm_hosts.append(vmhost)
+        self.vm_hosts.append(vmhost)
 
     @property
     def is_valid(self):

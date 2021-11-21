@@ -89,5 +89,5 @@ class Print(Command):
     arg_parser = print_parser
 
     def action(self, _state, args):
-        self.output(f"{''.join(args.text)}")
+        self.output(" ".join(args.text))
         return None
