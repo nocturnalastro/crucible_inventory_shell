@@ -23,9 +23,12 @@ class Shell:
         self.commands = {
             c.name: c for c in map(self._init_cmd, (commands + self.DEFAULT_COMMANDS))
         }
-        self.session = PromptSession()
+        self._init_session()
         if not hasattr(self, "state"):
             raise ex.NoState()
+
+    def _init_session(self):
+        self.session = PromptSession()
 
     def _init_cmd(self, cmd):
         return cmd(self) if cmd.requires_shell else cmd()
