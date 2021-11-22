@@ -1,21 +1,20 @@
-from .command import Command, ShellBoundCommand
+from .command import Command
 from argparse import ArgumentParser
 
 
-class Help(ShellBoundCommand):
+class Help(Command):
     name = "help"
     arg_parser = None
     requires_shell = True
 
-    @property
-    def command_list(self):
-        return [cmd_name for cmd_name in self._shell.commands.keys()]
+    def get_command_list(self, shell):
+        return [cmd_name for cmd_name in shell.commands.keys()]
 
     def parse(self, arg_line):
         return {}
 
-    def action(self, _state, _args):
-        self.output(f"Help: {self.command_list}")
+    def action(self, shell, _args):
+        self.output(f"Help: {self.get_command_list(shell)}")
         return None
 
 
@@ -26,13 +25,13 @@ class CommandNotFound(Help):
     def parse(self, action_name):
         return action_name
 
-    def action(self, _state, action_name):
+    def action(self, shell, action_name):
         self.output(
             " ".join(
                 [
                     f"Command ('{action_name}') not found!",
                     "Valid commands are:",
-                    f"{self.command_list}",
+                    f"{self.get_command_list(shell)}",
                 ]
             )
         )
@@ -46,37 +45,20 @@ class NoInput(Command):
         return {}
 
     @staticmethod
-    def action(_state, _args):
+    def action(_shell, _args):
         return None
 
 
-class Exit(ShellBoundCommand):
+class Exit(Command):
     name = "exit"
     arg_parser = None
-    requires_shell = True
 
     def parse(self, arg_line):
         return {}
 
-    def action(self, _state, _args):
-        self._shell.exit()
-        return None
-
-
-class Help(ShellBoundCommand):
-    name = "help"
-    arg_parser = None
-    requires_shell = True
-
-    @property
-    def command_list(self):
-        return [cmd_name for cmd_name in self._shell.commands.keys()]
-
-    def parse(self, arg_line):
-        return {}
-
-    def action(self, _state, _args):
-        self.output(f"Help: {self.command_list}")
+    @staticmethod
+    def action(shell, _args):
+        shell.exit()
         return None
 
 
@@ -88,6 +70,6 @@ class Print(Command):
     name = "print"
     arg_parser = print_parser
 
-    def action(self, _state, args):
+    def action(self, _shell, args):
         self.output(" ".join(args.text))
         return None

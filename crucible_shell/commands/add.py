@@ -44,9 +44,9 @@ class AddNode(Command):
     arg_parser = add_node_parser
 
     @staticmethod
-    def action(state, args):
+    def action(shell, args):
         node = Node(**vars(args))
-        state.inventory.add_node(node)
+        shell.state.inventory.add_node(node)
 
 
 add_service_parser = ArgumentParser()
@@ -64,9 +64,8 @@ class AddService(Command):
     arg_parser = add_service_parser
 
     @staticmethod
-    def action(state, args):
+    def action(shell, args):
         ServiceClass = service_registry.entries[args.type]
         service_args = dict(**vars(args))
         service_args.pop("type")  # Remove type as to not interfere with Service
-        state.inventory.add_service(ServiceClass(**service_args))
-
+        shell.state.inventory.add_service(ServiceClass(**service_args))

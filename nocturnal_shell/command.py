@@ -4,6 +4,11 @@ from .exceptions import ActionException
 
 
 class Command(ABC):
+    """Commands are the functionality of the shell
+    They required an arg_parser with a parse_args method and an action function.
+    The action method will recive
+    """
+
     requires_shell = False
 
     @abstractproperty
@@ -15,7 +20,7 @@ class Command(ABC):
         pass
 
     @abstractmethod
-    def action(self, state, args):
+    def action(self, shell, args):
         pass
 
     def parse(self, arg_line):
@@ -27,11 +32,3 @@ class Command(ABC):
     @staticmethod
     def output(text):
         print(text)
-
-
-class ShellBoundCommand(Command):
-    requires_shell = True
-
-    def __init__(self, shell) -> None:
-        self._shell = shell
-        super().__init__()

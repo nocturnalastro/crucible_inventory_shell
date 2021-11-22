@@ -8,30 +8,24 @@ from . import exceptions as ex
 
 class Shell:
     NONE = cmds.NoInput()
-    NOT_FOUND_CLASS = cmds.CommandNotFound
+    NOT_FOUND = cmds.CommandNotFound()
     DEFAULT_COMMANDS = [
-        cmds.Exit,
-        cmds.Help,
-        cmds.Print,
+        cmds.Exit(),
+        cmds.Help(),
+        cmds.Print(),
     ]
     DEFAULT_PROMPT = "$> "
     LOGGER = rootLogger
 
     def __init__(self, commands):
         self._exit = False
-        self.NOT_FOUND = self._init_cmd(cmds.CommandNotFound)
-        self.commands = {
-            c.name: c for c in map(self._init_cmd, (commands + self.DEFAULT_COMMANDS))
-        }
+        self.commands = {c.name: c for c in (commands + self.DEFAULT_COMMANDS)}
         self._init_session()
         if not hasattr(self, "state"):
             raise ex.NoState()
 
     def _init_session(self):
         self.session = PromptSession()
-
-    def _init_cmd(self, cmd):
-        return cmd(self) if cmd.requires_shell else cmd()
 
     @property
     def prompt_text(self):
@@ -68,4 +62,4 @@ class Shell:
 
     def handle(self, response):
         command, args = self.process_response(response)
-        command.action(self.state, command.parse(args))
+        command.action(self, command.parse(args))

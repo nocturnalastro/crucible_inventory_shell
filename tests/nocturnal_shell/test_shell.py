@@ -4,39 +4,6 @@ from collections import defaultdict
 from nocturnal_shell.shell import Shell
 
 
-@pytest.fixture
-def patch_output():
-    with mock.patch("nocturnal_shell.command.Command.output") as output:
-        yield output
-
-
-@pytest.fixture
-def session():
-    class DummySession:
-        def __init__(self, responses) -> None:
-            self.responses = responses
-            self.counters = defaultdict(int)
-
-        def prompt(self, prompt):
-            index = self.counters[prompt]
-            response = self.responses[prompt][index]
-            self.counters[prompt] += 1
-            return response
-
-
-@pytest.fixture
-def shell(session):
-    class TestShell(Shell):
-        def __init__(self):
-            self.state = {}
-            super().__init__(commands=[])
-
-        def _init_session(self):
-            self.session = session
-
-    return TestShell()
-
-
 @pytest.mark.parametrize(
     "command, expected_result",
     [
