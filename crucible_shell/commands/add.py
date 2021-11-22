@@ -53,7 +53,7 @@ add_service_parser = ArgumentParser()
 add_service_parser.add_argument(
     "-t",
     "--type",
-    choices=service_registry.entries,
+    choices=list(service_registry.entries.keys()),
 )
 add_service_parser.add_argument("-i", "--host", type=str)
 add_service_parser.add_argument("-n", "--hostname", type=str)

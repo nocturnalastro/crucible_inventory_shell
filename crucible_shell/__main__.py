@@ -7,8 +7,8 @@ from .shell import CrucibleShell
 if __name__ == "__main__":
     shell = CrucibleShell(
         commands=[
-            AddNode,
-            AddService,
+            AddNode(),
+            AddService(),
         ]
     )
     shell.mainloop()

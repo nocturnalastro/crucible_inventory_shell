@@ -4,6 +4,7 @@ from . import default_commands as cmds
 from .command import Command
 from .logging import rootLogger
 from . import exceptions as ex
+from .completions import CommandCompleter
 
 
 class Shell:
@@ -20,6 +21,7 @@ class Shell:
     def __init__(self, commands):
         self._exit = False
         self.commands = {c.name: c for c in (commands + self.DEFAULT_COMMANDS)}
+        self._completer = CommandCompleter(self.commands)
         self._init_session()
         if not hasattr(self, "state"):
             raise ex.NoState()
@@ -31,6 +33,12 @@ class Shell:
     def prompt_text(self):
         return self.DEFAULT_PROMPT
 
+    def get_prompt_args(self) -> dict:
+        return {
+            "message": self.prompt_text,
+            "completer": self._completer,
+        }
+
     def exit(self):
         self._exit = True
 
@@ -41,7 +49,7 @@ class Shell:
     def mainloop(self):
         while self.continue_loop:
             try:
-                self.handle(self.session.prompt(self.prompt_text))
+                self.handle(self.session.prompt(**self.get_prompt_args()))
             except ex.ActionException as err:
                 self.LOGGER.debug(err)
                 continue
