@@ -1,6 +1,8 @@
-from nocturnal_shell.command import Command  #
-from ..entities.services import service_registry
-from ..entities.entities import Node
+from nocturnal_shell.command import Command
+from nocturnal_shell.exceptions import UserException
+
+from crucible_inventory.services import service_registry
+from crucible_inventory.host import Node
 from argparse import ArgumentParser
 
 
@@ -56,7 +58,6 @@ add_service_parser.add_argument(
     choices=list(service_registry.entries.keys()),
 )
 add_service_parser.add_argument("-i", "--host", type=str)
-add_service_parser.add_argument("-n", "--hostname", type=str)
 
 
 class AddService(Command):
@@ -65,7 +66,13 @@ class AddService(Command):
 
     @staticmethod
     def action(shell, args):
-        ServiceClass = service_registry.entries[args.type]
-        service_args = dict(**vars(args))
-        service_args.pop("type")  # Remove type as to not interfere with Service
+        try:
+            ServiceClass = service_registry.entries[args.type]
+        except KeyError:
+            raise UserException(
+                f"Type '{args.type}' not found in "
+                f"'{ ','.join(service_registry.entries)}'"
+            )
+
+        service_args = ServiceClass.extract_vars(vars(args))
         shell.state.inventory.add_service(ServiceClass(**service_args))

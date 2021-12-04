@@ -1,5 +1,6 @@
 from .registry import Registry
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
+from netaddr.ip import IPAddress
 
 __all__ = ("service_registry",)
 
@@ -8,7 +9,12 @@ service_registry = Registry()
 
 @dataclass
 class Service:
-    host: str
+    host: IPAddress
+
+    @classmethod
+    def extract_vars(cls, input_values):
+        class_var_names = [x.name for x in fields(cls)]
+        return {k: v for k, v in input_values.items() if k in class_var_names}
 
 
 @service_registry.add_class
@@ -43,7 +49,11 @@ class Registry(Service):
 @service_registry.add_class
 @dataclass
 class DNSMasq(Service):
-    pass
+    use_dhcp: bool
+    dhcp_range_first: IPAddress
+    dhcp_range_last: IPAddress
+    prefix: str
+    gateway: IPAddress
 
 
 @service_registry.add_class
