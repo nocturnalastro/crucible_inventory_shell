@@ -63,9 +63,11 @@ class CommandCompleter(Completer):
 
         self.options = self._get_options(
             {
-                name: self._get_layers(cmd.arg_parser)
-                if hasattr(cmd, "arg_parser")
-                else cmd
+                name: (
+                    self._get_layers(cmd.arg_parser)
+                    if hasattr(cmd, "arg_parser")
+                    else cmd
+                )
                 for name, cmd in commands.items()
             }
         )
