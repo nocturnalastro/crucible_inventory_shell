@@ -1,7 +1,7 @@
 from nocturnal_shell.command import Command
 from nocturnal_shell.exceptions import UserException
 
-from crucible_inventory.services import service_registry
+from crucible_inventory.services import AssistedInstaller, service_registry
 from crucible_inventory.host import Node
 from argparse import ArgumentParser
 
@@ -52,12 +52,11 @@ class AddNode(Command):
 
 
 add_service_parser = ArgumentParser()
-add_service_parser.add_argument(
-    "-t",
-    "--type",
-    choices=list(service_registry.entries.keys()),
-)
 add_service_parser.add_argument("-i", "--host", type=str)
+
+type_subparsers = add_service_parser.add_subparsers(dest="type")
+assisted_installer_parser = type_subparsers.add_parser("AssistedInstaller")
+assisted_installer_parser.add_argument("-n", "--hostname", type=str)
 
 
 class AddService(Command):

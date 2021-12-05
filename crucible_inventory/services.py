@@ -39,7 +39,6 @@ class Registry(Service):
     cert_locality: str
     cert_organization: str
     cert_organizational_unit: str
-    cert_shell: str
     registry_container_image: str
     REGISTRY_HTTP_SECRET: str
     disconnected_registry_user: str

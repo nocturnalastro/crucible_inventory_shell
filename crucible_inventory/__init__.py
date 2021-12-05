@@ -1,3 +1,5 @@
+from . import exceptions
 from . import registry
-from . import entities
 from . import services
+from . import host
+from . import inventory

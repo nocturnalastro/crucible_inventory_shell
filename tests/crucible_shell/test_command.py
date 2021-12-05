@@ -1,9 +1,8 @@
-from collections import defaultdict
-from crucible_shell.commands.add import AddService, AddNode
-from crucible_shell.entities.entities import Node
 import pytest
-from crucible_shell.entities.services import AssistedInstaller
-from crucible_shell.shell import Shell
+from crucible_inventory.host import Node
+from crucible_inventory.services import AssistedInstaller
+
+from crucible_shell.commands.add import AddNode, AddService
 
 
 @pytest.fixture
@@ -23,7 +22,7 @@ def mac():
 
 def test_add_assisted_installer(shell, state, host, hostname):
     cmd = AddService()
-    args = cmd.parse(f"-t AssistedInstaller -i {host} -n {hostname}")
+    args = cmd.parse(f"AssistedInstaller -i {host} -n {hostname}")
     cmd.action(shell, args)
     result = state.store["service"][0]
     assert isinstance(result, AssistedInstaller)

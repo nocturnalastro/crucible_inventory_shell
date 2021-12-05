@@ -1,6 +1,6 @@
 from nocturnal_shell.shell import Shell
 from prompt_toolkit.formatted_text import HTML
-from .entities.entities import CrucibleInventory
+from crucible_inventory.inventory import CrucibleInventory
 
 
 class CrucibleShellState:

@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC, abstractproperty
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from .exceptions import ActionException
 
 
@@ -23,11 +23,32 @@ class Command(ABC):
     def action(self, shell, args):
         pass
 
+    @property
+    def _argparse_defaults(self):
+        defaults = {}
+        for a in self.arg_parser._actions:
+            defaults[a.dest] = a.default
+        return defaults
+
+    def merge_namespaces(self, *namespaces):
+        # Merge a top layer of namespaces
+        values = vars(namespaces[0])
+        defaults = self._argparse_defaults
+        for namespace in namespaces[1:]:
+            for name, value in vars(namespace).items():
+                if value != defaults[name]:
+                    values[name] = value
+        return Namespace(**values)
+
     def parse(self, arg_line):
-        try:
-            return self.arg_parser.parse_args(arg_line.split(" "))
-        except SystemExit:
-            raise ActionException from SystemExit
+        args, unparsed = self.arg_parser.parse_known_args(arg_line.split(" "))
+        # This is to allow global arguments to be after subparser arguments
+        if unparsed:
+            re_parsed, still_unknown = self.arg_parser.parse_known_args(unparsed)
+            args = self.merge_namespaces(args, re_parsed)
+            if still_unknown:
+                raise ActionException("unrecognized arguments {still_unknown}")
+        return args
 
     @staticmethod
     def output(text):
