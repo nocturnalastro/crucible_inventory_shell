@@ -1,34 +1,9 @@
 from prompt_toolkit.completion import Completer, WordCompleter, NestedCompleter
 from prompt_toolkit.document import Document
-
-
-# class CommandCompleter(Completer):
-#     def __init__(self, commands) -> None:
-#         self.commands = {
-#             name: self._get_layers(cmd.arg_parser)
-#             for name, cmd in commands.items()
-#         }
-#
-#         self.commands_completer = WordCompleter(list(self.commands.keys()))
-#         self.selected_command = None
-#
-#     def get_completions(self, document, complete_event):
-#         text = document.text_before_cursor.strip()
-#         start = text.split(" ")[0]
-#         if start in self.commands:
-#
-#         else:
-#             yield from self.commands_completer.get_completions(document, complete_event)
-#
-#     @staticmethod
-#     def _get_layers(argparser):
-#         try:
-#             return {
-#                 a.option_strings[-1]: None if not a.choices else set(a.choices)
-#                 for a in argparser._actions
-#             }
-#         except:
-# return None
+from argparse import (
+    _SubParsersAction as SubParsersAction,
+    _StoreAction as StoreAction,
+)
 
 
 class Skip:
@@ -49,14 +24,27 @@ class CommandCompleter(Completer):
             value = set(action.choices)
         else:
             value = SKIP_ME
+
         return (name, value)
 
     def _get_layers(self, argparser):
         if argparser is None:
             return None
         try:
-            return dict(self._parse_action(a) for a in argparser._actions)
-        except:
+            layer = {}
+
+            for a in argparser._actions:
+                if isinstance(a, StoreAction):
+                    name, value = self._parse_action(a)
+                    layer[name] = value
+                elif isinstance(a, SubParsersAction):
+                    for name, choice in a.choices.items():
+                        layer[name] = self._get_layers(choice)
+                else:
+                    continue
+
+            return layer
+        except Exception as _err:
             return None
 
     def __init__(self, commands):
